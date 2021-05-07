@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pie Chart</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+        <meta charset="utf-8">
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        
+        .inside
+        {
+            font-size: 15px;
+            font-weight: bold;
+            fill:white;
+        }
+        
+        .label
+        {
+            font-size: 20px;
+            font-weight: bold;
+            
+        }
+        h1{
+        text-align: center;
+        }
+        
+        
+    </style>
+    </head>
+    <body>
+        
+        <div id="wrapper">
+            
+        <h1>Covid19-The Pandemic</h1>
+          <hr/>
+        <nav>
+            <nav>
+            <a href="index.html">Home</a>&nbsp;
+            <a href="worldmap.html">World map</a>&nbsp;
+            <a href="bar.html">View By Countries</a>&nbsp;&nbsp;
+            <a href="pienew.html">Death Rate </a>&nbsp;
+        </nav>
+        </nav>
+           
+              
+            <h2>Percentage of People Affected by Covid19 according to their AgeGroup.</h2>
+        <script>
+            
+            var width = 1400, height= 500
+            var colors = d3.scaleOrdinal(d3.schemeDark2);
+            var svg = d3.select("body").append("svg")
+                        .attr("width",width).attr("height",height)
+                        .style("background","black")
+                        ;
+            
+            var details = [{agegroup:"0 - 17 years old",number:3},
+                           {agegroup:"18 - 44 years old",number:4.5},
+                           {agegroup:"45 - 64 years old",number:23.1},
+                           {agegroup:"65 - 74 years old",number:24.6},
+                           {agegroup:"75+ years old",number:47.7}]
+            
+            var data = d3.pie().sort(null).value(function(d){return d.number;})
+            (details);
+            console.log(data);
+            var segments = d3.arc()
+                             .innerRadius(0)
+                             .outerRadius(200)
+                             .padAngle(.05)
+                             .padRadius(50);
+            var sections = svg.append("g").attr("transform","translate(250, 250)")
+                                .selectAll("path").data(data);
+            sections.enter().append("path").attr("d",segments).attr("fill",function(d){return colors(d.data.number);});
+            
+            var content = d3.select("g").selectAll("text").data(data);
+            content.enter().append("text",).classed("inside",true).each(function(d){
+                var center = segments.centroid(d);
+                d3.select(this).attr("x", center[0]).attr("y", center[1])
+                               .text(d.data.number)
+            });
+            
+            var legends = svg.append("g").attr("transform", "translate(500, 100)")
+                                .selectAll(".legends").data(data);
+            var legend = legends.enter().append("g").classed("legends", true).attr("transform", function(d,i){return "translate(0," + (i+1)*30 +")";});
+             legend.append("rect").attr("width", 20).attr("height", 20).attr("fill",function(d){return colors(d.data.number);});
+            legend.append("text").classed("label", true).text(function(d){return d.data.agegroup;})
+                  .attr("fill", function(d){return colors(d.data.number);})
+                  .attr("x", 30)
+                  .attr("y", 20);
+            
+        </script>
+        
+    
+        </div>
+    </body></html>

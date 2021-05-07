@@ -1,0 +1,124 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+     <link rel="stylesheet" type="text/css" href="css/main.css">
+        <meta charset="utf-8">
+    <style>
+        .bar {
+            fill: steelblue;
+        }
+
+        .highlight {
+            fill: red;
+        }
+        h1{
+        text-align: center;
+        }
+        
+</style>
+</head>
+
+<!-- Load d3.js -->
+<script src="http://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<body>
+    <div id="wrapper">
+            
+        <h1>Covid19-The Pandemic</h1>
+          <hr/>
+        <nav>
+            <a href="index.html">Home</a>&nbsp;
+            <a href="worldmap.html">World map</a>&nbsp;
+            <a href="bar.html">View By Countries</a>&nbsp;&nbsp;
+            <a href="pienew.html">Death Rate </a>&nbsp;
+        </nav>
+        <h2> No. of tests done by Countries(High to Low)</h2>
+<!-- Create an element where the map will take place -->
+<svg id="my_dataviz" width="1200" height="500"></svg>
+
+
+<script>
+
+// The svg
+var svg = d3.select("svg"),
+  width = +svg.attr("width"),
+  height = +svg.attr("height");
+
+// Map and projection
+var path = d3.geoPath();
+var projection = d3.geoMercator()
+  .scale(70)
+  .center([0,20])
+  .translate([width / 2, height / 2]);
+
+// Data and color scale
+var data = d3.map();
+var colorScale = d3.scaleThreshold()
+  .domain([1000, 10000, 100000, 300000, 5000000, 1000000,5000000])
+  .range(d3.schemeReds[7]);
+
+// Load external data and boot
+d3.queue()
+  .defer(d3.json, "world.geojson")
+  .defer(d3.csv, "countries.csv", function(d) { data.set(d.code, +d.cases); })
+  .await(ready);
+
+function ready(error, topo) {
+
+  let mouseOver = function(d) {
+    d3.selectAll(".Country")
+      .transition()
+      .duration(200)
+      .style("opacity", .5)
+    d3.select(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+      .style("stroke", "black")
+      .text(d.properties.name);
+      //.select('#name').text(d.properties.name);
+  }
+
+  let mouseLeave = function(d) {
+    d3.selectAll(".Country")
+      .transition()
+      .duration(200)
+      .style("opacity", .8)
+    d3.select(this)
+      .transition()
+      .duration(200)
+      .style("stroke", "transparent")
+  }
+
+  // Draw the map
+  svg.append("g")
+    .selectAll("path")
+    .data(topo.features)
+    .enter()
+    .append("path")
+      // draw each country
+      .attr("d", d3.geoPath()
+        .projection(projection)
+      )
+      // set the color of each country
+      .attr("fill", function (d) {
+        d.total = data.get(d.id) || 0;
+        return colorScale(d.total);
+      })
+      .style("stroke", "transparent")
+      .attr("class", function(d){ return "Country" } )
+      .style("opacity", .8)
+      .on("mouseover", mouseOver )
+      .on("mouseleave", mouseLeave )
+    }
+
+</script>
+         </div>
+     <footer>
+        Copyright &copy; 2019 The pandemic<br>
+        </footer>
+</body>
+</html>
